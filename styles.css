@@ -1,0 +1,410 @@
+/* ---------- 正文 ---------- */
+
+/* 被批注的原文 */
+.md-annot-hl {
+	background-color: rgba(255, 196, 0, 0.22);
+	border-bottom: 2px solid rgba(255, 166, 0, 0.8);
+	transition: background-color 0.15s;
+}
+
+.md-annot-hl.is-active {
+	background-color: rgba(255, 166, 0, 0.42);
+}
+
+/* Obsidian 会把 {==原文==} 里的 ==原文== 也渲染成高亮，这里统一成批注样式 */
+.md-annot-hl .cm-highlight,
+.md-annot-hl.cm-highlight {
+	background-color: transparent;
+	color: inherit;
+}
+
+.md-annot-icon {
+	display: inline-flex;
+	align-items: center;
+	color: rgb(230, 126, 0);
+	cursor: pointer;
+}
+
+.md-annot-icon svg {
+	width: 14px;
+	height: 14px;
+}
+
+.md-annot-inline-icon {
+	margin: 0 2px;
+	vertical-align: -1px;
+}
+
+/* 全文批注标记 */
+.md-annot-global {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 1px 10px;
+	border-radius: var(--radius-s);
+	background-color: rgba(255, 166, 0, 0.12);
+	border-left: 3px solid rgb(230, 126, 0);
+}
+
+.md-annot-global-label {
+	font-size: var(--font-ui-smaller);
+	font-weight: 600;
+	color: rgb(230, 126, 0);
+}
+
+/* ---------- 右侧卡片栏 ---------- */
+
+/* 有批注时给正文右侧留出卡片栏的位置 */
+.md-annot-has-margin .cm-sizer {
+	box-sizing: content-box;
+	padding-right: 320px;
+}
+
+.md-annot-margin {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 0;
+	overflow: visible;
+	z-index: 2;
+}
+
+.md-annot-card {
+	position: absolute;
+	width: 260px;
+	padding: 10px 12px;
+	border-radius: var(--radius-m);
+	border: 1px solid var(--background-modifier-border);
+	background-color: var(--background-primary);
+	box-shadow: var(--shadow-s);
+	font-size: var(--font-ui-small);
+	cursor: pointer;
+	transition: transform 0.15s, box-shadow 0.15s, top 0.15s;
+}
+
+.md-annot-card:hover {
+	border-color: rgba(255, 166, 0, 0.6);
+}
+
+.md-annot-card.is-active,
+.md-annot-card.is-editing {
+	transform: translateX(-4px);
+	border-color: rgba(255, 166, 0, 0.9);
+	box-shadow: var(--shadow-l);
+	z-index: 1;
+}
+
+.md-annot-card.is-editing {
+	cursor: default;
+}
+
+.md-annot-card-quote {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	border-left: 2px solid rgb(230, 126, 0);
+	padding-left: 6px;
+	margin-bottom: 6px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.md-annot-card-quote.is-global {
+	font-weight: 600;
+	color: rgb(230, 126, 0);
+}
+
+.md-annot-card-comment {
+	white-space: pre-wrap;
+	word-break: break-word;
+	line-height: 1.6;
+	/* 默认只显示前两行（意见里有列表等块级内容，用高度限制而不是 line-clamp），
+	   当前批注、悬停和预览时完整展开 */
+	max-height: 3.2em;
+	overflow: hidden;
+}
+
+.md-annot-card.is-active .md-annot-card-comment,
+.md-annot-card.is-preview .md-annot-card-comment,
+.md-annot-card:hover .md-annot-card-comment {
+	max-height: none;
+}
+
+/* 悬停展开时盖在下方卡片之上 */
+.md-annot-card:hover {
+	z-index: 5;
+}
+
+/* 悬停正文高亮时，对应卡片加深 */
+.md-annot-card.is-hover {
+	border-color: rgba(255, 166, 0, 0.9);
+	box-shadow: var(--shadow-l);
+}
+
+.md-annot-hl.is-hover {
+	background-color: rgba(255, 166, 0, 0.42);
+}
+
+.md-annot-card-ops {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	display: flex;
+	gap: 2px;
+	padding-left: 4px;
+	background-color: var(--background-primary);
+	opacity: 0;
+}
+
+.md-annot-card:hover .md-annot-card-ops {
+	opacity: 1;
+}
+
+.md-annot-card-input {
+	width: 100%;
+	min-height: 4.5em;
+	resize: vertical;
+	font-size: var(--font-ui-small);
+}
+
+.md-annot-card-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+/* ---------- 区块悬停按钮 ---------- */
+
+.md-annot-block-btn {
+	position: absolute;
+	z-index: 3;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: var(--radius-s);
+	border: 1px solid var(--background-modifier-border);
+	background-color: var(--background-primary);
+	color: var(--text-muted);
+	box-shadow: var(--shadow-s);
+	cursor: pointer;
+}
+
+.md-annot-block-btn.is-visible {
+	display: flex;
+}
+
+.md-annot-block-btn:hover {
+	color: rgb(230, 126, 0);
+	border-color: rgba(255, 166, 0, 0.8);
+}
+
+.md-annot-block-btn svg {
+	width: 16px;
+	height: 16px;
+}
+
+/* ---------- 收起模式 ---------- */
+
+.md-annot-has-margin.md-annot-collapsed .cm-sizer {
+	padding-right: 72px;
+}
+
+.md-annot-badge {
+	position: absolute;
+	min-width: 24px;
+	height: 24px;
+	padding: 0 7px;
+	border-radius: 12px 12px 12px 3px;
+	background-color: rgb(230, 126, 0);
+	color: #fff;
+	font-size: var(--font-ui-smaller);
+	font-weight: 600;
+	line-height: 24px;
+	text-align: center;
+	cursor: pointer;
+	box-shadow: var(--shadow-s);
+	opacity: 0.85;
+	transition: opacity 0.15s, transform 0.15s;
+}
+
+.md-annot-badge:hover,
+.md-annot-badge.is-active {
+	opacity: 1;
+	transform: scale(1.1);
+}
+
+/* 悬停气泡时的预览卡片，显示在气泡右侧 */
+.md-annot-card.is-preview,
+.md-annot-collapsed .md-annot-card.is-editing {
+	transform: none;
+	box-shadow: var(--shadow-l);
+	z-index: 4;
+}
+
+/* ---------- 设置页 ---------- */
+
+.md-annot-setting-preview {
+	margin-top: 8px;
+	padding: 8px 12px;
+	border-radius: var(--radius-s);
+	background-color: var(--background-secondary);
+	font-family: var(--font-monospace);
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+}
+
+/* ---------- 阅读模式卡片栏 ---------- */
+
+.markdown-preview-view.md-annot-has-margin {
+	position: relative;
+}
+
+.md-annot-has-margin .markdown-preview-sizer {
+	box-sizing: content-box;
+	padding-right: 320px;
+}
+
+.md-annot-has-margin.md-annot-collapsed .markdown-preview-sizer {
+	padding-right: 72px;
+}
+
+.md-annot-card.is-readonly {
+	cursor: default;
+}
+
+mark.md-annot-hl {
+	color: inherit;
+	background-color: rgba(255, 196, 0, 0.22);
+}
+
+mark.md-annot-hl.is-active,
+mark.md-annot-hl.is-hover {
+	background-color: rgba(255, 166, 0, 0.42);
+}
+
+/* ---------- 跨段批注 ---------- */
+
+/* 实时预览：范围内每一行左侧一条竖线 */
+.md-annot-block-line {
+	position: relative;
+}
+
+.md-annot-block-line::before {
+	content: "";
+	position: absolute;
+	left: -12px;
+	top: 0;
+	bottom: 0;
+	width: 3px;
+	border-radius: 2px;
+	background-color: rgba(255, 166, 0, 0.6);
+}
+
+.md-annot-block-line.is-active::before {
+	background-color: rgb(230, 126, 0);
+}
+
+/* 阅读模式：范围内的段落整体加底色和竖线 */
+.md-annot-block-hl {
+	position: relative;
+	background-color: rgba(255, 196, 0, 0.12);
+	border-radius: var(--radius-s);
+	transition: background-color 0.15s;
+}
+
+.md-annot-block-hl::before {
+	content: "";
+	position: absolute;
+	left: -12px;
+	top: 0;
+	bottom: 0;
+	width: 3px;
+	border-radius: 2px;
+	background-color: rgba(255, 166, 0, 0.8);
+}
+
+.md-annot-block-hl.is-active,
+.md-annot-block-hl.is-hover {
+	background-color: rgba(255, 166, 0, 0.25);
+}
+
+/* ---------- 选区批注按钮 ---------- */
+
+.md-annot-sel-btn {
+	position: absolute;
+	z-index: 3;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: var(--radius-s);
+	background-color: rgb(230, 126, 0);
+	color: #fff;
+	box-shadow: var(--shadow-s);
+	cursor: pointer;
+}
+
+.md-annot-sel-btn.is-visible {
+	display: flex;
+}
+
+.md-annot-sel-btn:hover {
+	background-color: rgb(204, 108, 0);
+}
+
+.md-annot-sel-btn.is-disabled {
+	background-color: var(--background-modifier-border);
+	color: var(--text-muted);
+	cursor: not-allowed;
+}
+
+.md-annot-sel-btn svg {
+	width: 14px;
+	height: 14px;
+}
+
+/* ---------- 意见里的简单 Markdown ---------- */
+
+.md-annot-card-comment p,
+.md-annot-card-comment ul,
+.md-annot-card-comment ol {
+	margin: 0;
+}
+
+.md-annot-card-comment ul,
+.md-annot-card-comment ol {
+	padding-left: 1.4em;
+}
+
+.md-annot-card-comment code {
+	font-size: 0.9em;
+}
+
+.md-annot-gap {
+	height: 0.6em;
+}
+
+/* 意见超过两行时底部渐隐，提示还有内容；完整展开时去掉 */
+.md-annot-card.is-clamped:not(.is-active):not(:hover):not(.is-preview) .md-annot-card-comment {
+	-webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+	mask-image: linear-gradient(to bottom, #000 55%, transparent);
+}
+
+/* 阅读模式里，Obsidian 自带的高亮嵌在批注高亮里时不再叠色 */
+.md-annot-hl mark {
+	background-color: transparent;
+	color: inherit;
+}
+
+/* 输入框：高度随内容自适应，超过上限后滚动 */
+.md-annot-card-input {
+	resize: none;
+	overflow-y: auto;
+	max-height: 50vh;
+	line-height: 1.6;
+}
