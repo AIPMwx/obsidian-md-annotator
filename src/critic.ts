@@ -16,7 +16,7 @@ export interface Annotation {
 	commentTo: number;
 	text: string;
 	comment: string;
-	global: boolean;
+	isGlobal: boolean;
 }
 
 // 原文部分不允许再出现 {==，避免一个没闭合的开始标记吞掉后面的内容
@@ -36,14 +36,14 @@ export function parseAnnotations(doc: string): Annotation[] {
 			result.push({
 				from, to, textFrom, textTo, commentFrom,
 				commentTo: commentFrom + m[2].length,
-				text: m[1], comment: m[2], global: false,
+				text: m[1], comment: m[2], isGlobal: false,
 			});
 		} else {
 			const commentFrom = from + 3;
 			result.push({
 				from, to, textFrom: from, textTo: from, commentFrom,
 				commentTo: commentFrom + m[3].length,
-				text: "", comment: m[3], global: true,
+				text: "", comment: m[3], isGlobal: true,
 			});
 		}
 	}
@@ -139,7 +139,7 @@ export function globalInsertOffset(doc: string): number {
 /** 去掉批注标记、保留原文；全文批注独占一行时连同后面的空行一起删掉 */
 export function removalChange(doc: string, a: Annotation): { from: number; to: number; insert: string } {
 	let to = a.to;
-	if (a.global && (a.from === 0 || doc[a.from - 1] === "\n")) {
+	if (a.isGlobal && (a.from === 0 || doc[a.from - 1] === "\n")) {
 		for (let i = 0; i < 2 && doc[to] === "\n"; i++) to++;
 	}
 	return { from: a.from, to, insert: a.text };
@@ -164,7 +164,7 @@ export function blockContentRange(line: string): { start: number; end: number } 
 /** 每一行是否处于代码块（围栏）或 frontmatter 中 */
 export function nonProseLines(doc: string): boolean[] {
 	const lines = doc.split("\n");
-	const flags: boolean[] = new Array(lines.length).fill(false);
+	const flags: boolean[] = lines.map(() => false);
 	let i = 0;
 	if (lines[0]?.trim() === "---") {
 		const end = lines.findIndex((l, idx) => idx > 0 && l.trim() === "---");

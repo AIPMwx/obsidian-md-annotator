@@ -126,7 +126,7 @@ function processInline(el: HTMLElement, a: Annotation) {
 	if (close === -1) return;
 	const end = close + 3;
 
-	if (a.global) {
+	if (a.isGlobal) {
 		const range = deleteText(el, open, end);
 		const badge = globalBadge(a.comment);
 		if (range && badge) range.insertNode(badge);
@@ -235,7 +235,7 @@ function processFallback(root: HTMLElement) {
 		if (node.data.includes("{>>")) targets.push(node);
 	}
 	for (const node of targets) {
-		const frag = document.createDocumentFragment();
+		const frag = createFragment();
 		let last = 0;
 		TEXT_PATTERN.lastIndex = 0;
 		let m: RegExpExecArray | null;

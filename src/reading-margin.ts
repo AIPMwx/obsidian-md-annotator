@@ -14,7 +14,7 @@ interface Item {
 	top: number;
 	quote: string;
 	comment: string;
-	global: boolean;
+	isGlobal: boolean;
 }
 
 /** 收起模式下，高度相差不超过这个值的批注算同一行 */
@@ -144,7 +144,7 @@ export class ReadingMargin {
 				top: el.getBoundingClientRect().top - sr.top + scroller.scrollTop,
 				quote: el.dataset.annotQuote ?? "",
 				comment: el.dataset.annotComment ?? "",
-				global: el.dataset.annotGlobal === "true",
+				isGlobal: el.dataset.annotGlobal === "true",
 			}))
 			.sort((a, b) => a.top - b.top);
 
@@ -163,8 +163,7 @@ export class ReadingMargin {
 		}
 		this.groups.forEach((group, index) => {
 			const badge = this.layer!.createDiv({ cls: "md-annot-badge", text: String(group.length) });
-			badge.style.left = `${this.left}px`;
-			badge.style.top = `${group[0].top}px`;
+			badge.setCssStyles({ left: `${this.left}px`, top: `${group[0].top}px` });
 			badge.addEventListener("click", () => display.setCollapsed(false));
 			badge.addEventListener("mouseenter", () => this.showPreview(index));
 			badge.addEventListener("mouseleave", this.hidePreviewSoon);
@@ -208,8 +207,8 @@ export class ReadingMargin {
 		for (const item of items) {
 			const card = this.layer!.createDiv({ cls: "md-annot-card is-readonly" });
 			card.createDiv({
-				cls: item.global ? "md-annot-card-quote is-global" : "md-annot-card-quote",
-				text: item.global ? "全文批注" : item.quote,
+				cls: item.isGlobal ? "md-annot-card-quote is-global" : "md-annot-card-quote",
+				text: item.isGlobal ? "全文批注" : item.quote,
 			});
 			const body = card.createDiv({ cls: "md-annot-card-comment" });
 			if (item.comment) renderComment(body, item.comment);
@@ -225,8 +224,7 @@ export class ReadingMargin {
 			});
 
 			card.toggleClass("is-active", item.el === this.active);
-			card.style.left = `${left}px`;
-			card.style.width = `${width}px`;
+			card.setCssStyles({ left: `${left}px`, width: `${width}px` });
 			this.cards.set(item.el, card);
 			cards.push(card);
 		}
@@ -241,7 +239,7 @@ export class ReadingMargin {
 			items.findIndex((i) => i.el === this.active),
 			CARD_SPACING,
 		);
-		cards.forEach((card, i) => (card.style.top = `${ys[i]}px`));
+		cards.forEach((card, i) => (card.setCssStyles({ top: `${ys[i]}px` })));
 		return cards;
 	}
 }

@@ -1,12 +1,21 @@
 import { EditorView } from "@codemirror/view";
-import { App, Editor, editorLivePreviewField, MarkdownView, Notice, Plugin, PluginSettingTab, setIcon, Setting } from "obsidian";
+import {
+	App,
+	Editor,
+	editorLivePreviewField,
+	MarkdownView,
+	Notice,
+	Plugin,
+	PluginSettingTab,
+	setIcon,
+	SettingDefinitionItem,
+} from "obsidian";
 import {
 	globalComment,
 	globalInsertOffset,
 	parseAnnotations,
 	removalChange,
 	sanitizeComment,
-	validateSelection,
 } from "./critic";
 import { blockButton } from "./block";
 import { display, READING_STYLES, ReadingStyle, refreshMargin } from "./display";
@@ -54,7 +63,6 @@ export default class AnnotatorPlugin extends Plugin {
 		this.addCommand({
 			id: "add-annotation",
 			name: "为选中文字添加批注",
-			hotkeys: [{ modifiers: ["Mod", "Shift"], key: "m" }],
 			editorCallback: (editor) => this.addAnnotation(editor),
 		});
 		this.addCommand({
@@ -187,63 +195,74 @@ const PREFIX_PRESETS: Record<string, string> = {
 };
 
 class AnnotatorSettingTab extends PluginSettingTab {
+	/** 意见前缀下拉框是否选在“自定义…” */
+	private custom = !(display.prefix in PREFIX_PRESETS);
+	private previewEl: HTMLElement | null = null;
+
 	constructor(app: App, private plugin: AnnotatorPlugin) {
 		super(app, plugin);
 	}
 
-	display() {
-		const { containerEl } = this;
-		containerEl.empty();
+	private preview() {
+		return `写入文件的样子：{==原文==}{>>${display.prefix}补一组近三年的数据<<}`;
+	}
 
-		const preview = () => `写入文件的样子：{==原文==}{>>${display.prefix}补一组近三年的数据<<}`;
-		let previewEl: HTMLElement | null = null;
-		let customSetting: Setting | null = null;
-		const isPreset = display.prefix in PREFIX_PRESETS;
+	private async setPrefix(prefix: string) {
+		display.prefix = sanitizeComment(prefix);
+		await this.plugin.saveSettings();
+		this.plugin.refreshAll(true);
+		this.previewEl?.setText(this.preview());
+	}
 
-		const update = async (prefix: string) => {
-			display.prefix = sanitizeComment(prefix);
-			await this.plugin.saveSettings();
-			this.plugin.refreshAll(true);
-			previewEl?.setText(preview());
-		};
-
-		new Setting(containerEl)
-			.setName("意见前缀")
-			.setDesc("写入文件时加在每条意见前面，帮助 AI 识别这是批注。只影响新写入或修改过的批注，界面上不显示前缀。")
-			.addDropdown((dd) => {
-				for (const [value, label] of Object.entries(PREFIX_PRESETS)) dd.addOption(value, label);
-				dd.addOption("__custom__", "自定义…");
-				dd.setValue(isPreset ? display.prefix : "__custom__");
-				dd.onChange(async (value) => {
-					const custom = value === "__custom__";
-					customSetting?.settingEl.toggle(custom);
-					if (!custom) await update(value);
-				});
-			});
-
-		customSetting = new Setting(containerEl)
-			.setName("自定义前缀")
-			.addText((text) =>
-				text
-					.setPlaceholder("例如：AI 请修改：")
-					.setValue(isPreset ? "" : display.prefix)
-					.onChange((value) => update(value)),
-			);
-		customSetting.settingEl.toggle(!isPreset);
-
-		previewEl = containerEl.createDiv({ cls: "md-annot-setting-preview", text: preview() });
-
-		new Setting(containerEl)
-			.setName("阅读模式样式")
-			.setDesc("阅读模式下批注的显示方式。选择“右侧卡片栏”时，展开 / 收起与编辑模式共用标题栏上的按钮。")
-			.addDropdown((dd) => {
-				for (const [value, label] of Object.entries(READING_STYLES)) dd.addOption(value, label);
-				dd.setValue(display.readingStyle);
-				dd.onChange(async (value) => {
-					display.readingStyle = value as ReadingStyle;
-					await this.plugin.saveSettings();
-					this.plugin.refreshAll(true);
-				});
-			});
+	/** 设置页由 Obsidian 按这里的定义渲染，设置项也能被设置搜索找到 */
+	getSettingDefinitions(): SettingDefinitionItem[] {
+		return [
+			{
+				name: "意见前缀",
+				desc: "写入文件时加在每条意见前面，帮助 AI 识别这是批注。只影响新写入或修改过的批注，界面上不显示前缀。",
+				aliases: ["prefix", "批注"],
+				render: (setting) => {
+					this.previewEl = setting.descEl.createDiv({ cls: "md-annot-setting-preview", text: this.preview() });
+					setting.addDropdown((dd) => {
+						for (const [value, label] of Object.entries(PREFIX_PRESETS)) dd.addOption(value, label);
+						dd.addOption("__custom__", "自定义…");
+						dd.setValue(this.custom ? "__custom__" : display.prefix);
+						dd.onChange((value) => {
+							this.custom = value === "__custom__";
+							if (!this.custom) void this.setPrefix(value);
+							// 自定义前缀一行的显示与否变了
+							this.update();
+						});
+					});
+				},
+			},
+			{
+				name: "自定义前缀",
+				visible: () => this.custom,
+				render: (setting) => {
+					setting.addText((text) => {
+						text.setPlaceholder("例如：AI 请修改：");
+						text.setValue(display.prefix in PREFIX_PRESETS ? "" : display.prefix);
+						text.onChange((value) => void this.setPrefix(value));
+					});
+				},
+			},
+			{
+				name: "阅读模式样式",
+				desc: "阅读模式下批注的显示方式。选择“右侧卡片栏”时，展开 / 收起与编辑模式共用标题栏上的按钮。",
+				aliases: ["reading", "阅读视图"],
+				render: (setting) => {
+					setting.addDropdown((dd) => {
+						for (const [value, label] of Object.entries(READING_STYLES)) dd.addOption(value, label);
+						dd.setValue(display.readingStyle);
+						dd.onChange((value) => {
+							display.readingStyle = value as ReadingStyle;
+							void this.plugin.saveSettings();
+							this.plugin.refreshAll(true);
+						});
+					});
+				},
+			},
+		];
 	}
 }

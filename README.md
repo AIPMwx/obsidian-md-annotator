@@ -4,7 +4,7 @@
 
 MD Annotator 是一个 Obsidian 插件：在 Markdown 文档里选中文字、写下修改意见，意见会以标准的 [CriticMarkup](https://github.com/CriticMarkup/CriticMarkup-toolkit) 格式直接写进文件。AI 读这个文件时，能准确知道每一条意见针对的是哪一段原文。
 
-English summary is at the [end of this page](#english).
+> **English:** MD Annotator is an Obsidian plugin for reviewing AI-written drafts. Select any passage (or several paragraphs), write a comment, and it is saved inline in the note using the standard CriticMarkup syntax `{==text==}{>>comment<<}`. Hand the annotated file back to any AI tool and it knows exactly which passage each comment refers to. Comments are shown as cards in a right-hand margin, like an online document editor. See the [full English section](#english) at the end of this page.
 
 ---
 
@@ -54,7 +54,7 @@ AI 生成初稿  →  你在 Obsidian 里通读、批注  →  AI 按批注修�
 ### 添加批注
 
 - **悬停一段，一键批注整段**：鼠标移到某一段上，正文右侧会出现批注按钮，点击即批注这一整段。
-- **选中文字，就地批注**：选中文字后松开鼠标，选区旁边出现橙色的批注按钮。也可以用快捷键 `Cmd/Ctrl + Shift + M`，或者右键菜单「添加批注」。
+- **选中文字，就地批注**：选中文字后松开鼠标，选区旁边出现橙色的批注按钮。也可以用右键菜单「添加批注」，或在 设置 → 快捷键 里给「为选中文字添加批注」绑定一个快捷键。
 - **跨段落批注**：可以一次框选多个段落，适合“这几段的结构要调整”这类整体性意见。也可以在悬停按钮上 `Shift + 点击`，逐段把段落加进选区。
 - **全文批注**：针对整篇文章的意见（比如“语气再正式一些”），通过右键菜单或命令面板「添加全文批注」，会插在文档开头。
 
@@ -136,7 +136,7 @@ MD Annotator lets you select text in a Markdown note and attach a comment. Comme
 
 **Features**
 
-- One-click annotation of a paragraph on hover, or of any selection (including multiple paragraphs), plus whole-document comments.
+- One-click annotation of a paragraph on hover, or of any selection (including multiple paragraphs), plus whole-document comments. No default hotkey is set; you can assign one in Settings → Hotkeys.
 - A Google-Docs-style comment margin: cards aligned with the text, compact two-line previews, the active card expands and aligns with its passage, and highlights and cards highlight each other on hover.
 - A collapsible margin with count badges for small screens, and four display styles for Reading view.
 - Lightweight Markdown in comments (bold, italic, code, lists), an auto-growing input box, and keyboard shortcuts.

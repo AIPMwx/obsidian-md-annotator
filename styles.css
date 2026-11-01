@@ -389,10 +389,20 @@ mark.md-annot-hl.is-hover {
 	height: 0.6em;
 }
 
-/* 意见超过两行时底部渐隐，提示还有内容；完整展开时去掉 */
-.md-annot-card.is-clamped:not(.is-active):not(:hover):not(.is-preview) .md-annot-card-comment {
-	-webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
-	mask-image: linear-gradient(to bottom, #000 55%, transparent);
+/* 意见超过两行时底部盖一层渐变（卡片底色），提示还有内容；完整展开时去掉 */
+.md-annot-card-comment {
+	position: relative;
+}
+
+.md-annot-card.is-clamped:not(.is-active):not(:hover):not(.is-preview) .md-annot-card-comment::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 1.4em;
+	background: linear-gradient(to bottom, transparent, var(--background-primary));
+	pointer-events: none;
 }
 
 /* 阅读模式里，Obsidian 自带的高亮嵌在批注高亮里时不再叠色 */

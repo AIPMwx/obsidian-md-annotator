@@ -147,7 +147,7 @@ export const marginCards = ViewPlugin.fromClass(
 			const cr = view.contentDOM.getBoundingClientRect();
 			const docTop = view.documentTop - sr.top + scroller.scrollTop;
 			const items = list.map((a) => {
-				const pos = a.global ? a.from : a.textFrom;
+				const pos = a.isGlobal ? a.from : a.textFrom;
 				const coords = view.coordsAtPos(pos);
 				const top = coords ? coords.top - sr.top + scroller.scrollTop : view.lineBlockAt(pos).top + docTop;
 				return { a, top, line: view.state.doc.lineAt(pos).number };
@@ -210,8 +210,7 @@ export const marginCards = ViewPlugin.fromClass(
 			const active = activeAnnotation(view.state, m.items.map((i) => i.a));
 			for (const [line, group] of groups) {
 				const badge = this.root.createDiv({ cls: "md-annot-badge", text: String(group.length) });
-				badge.style.left = `${m.left}px`;
-				badge.style.top = `${group[0].top}px`;
+				badge.setCssStyles({ left: `${m.left}px`, top: `${group[0].top}px` });
 				badge.toggleClass("is-active", group.some((i) => i.a === active));
 				badge.addEventListener("click", () => display.setCollapsed(false));
 				badge.addEventListener("mouseenter", () => this.showPreview(line));
@@ -296,10 +295,9 @@ export const marginCards = ViewPlugin.fromClass(
 					created.push(el);
 				}
 				el.toggleClass("is-active", a === active);
-				el.style.left = `${left}px`;
-				el.style.width = `${width}px`;
+				el.setCssStyles({ left: `${left}px`, width: `${width}px` });
 				const prev = this.prevTops.get(a.from);
-				if (prev !== undefined && el !== this.editCard) el.style.top = `${prev}px`;
+				if (prev !== undefined && el !== this.editCard) el.setCssStyles({ top: `${prev}px` });
 				this.cards.set(a.from, el);
 				els.push(el);
 			}
@@ -316,7 +314,7 @@ export const marginCards = ViewPlugin.fromClass(
 				CARD_SPACING,
 			);
 			els.forEach((el, i) => {
-				el.style.top = `${ys[i]}px`;
+				el.setCssStyles({ top: `${ys[i]}px` });
 				this.prevTops.set(items[i].a.from, ys[i]);
 			});
 			return created;
@@ -339,7 +337,7 @@ export const marginCards = ViewPlugin.fromClass(
 			});
 
 			card.addEventListener("click", () => {
-				view.dispatch({ selection: { anchor: a.global ? a.from : a.textFrom } });
+				view.dispatch({ selection: { anchor: a.isGlobal ? a.from : a.textFrom } });
 				view.focus();
 			});
 			card.addEventListener("mouseenter", () => this.highlightText(a.from, true));
@@ -406,8 +404,8 @@ export const marginCards = ViewPlugin.fromClass(
 
 		quote(card: HTMLElement, a: Annotation) {
 			card.createDiv({
-				cls: a.global ? "md-annot-card-quote is-global" : "md-annot-card-quote",
-				text: a.global ? "全文批注" : a.text,
+				cls: a.isGlobal ? "md-annot-card-quote is-global" : "md-annot-card-quote",
+				text: a.isGlobal ? "全文批注" : a.text,
 			});
 		}
 	},

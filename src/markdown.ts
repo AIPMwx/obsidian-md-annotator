@@ -61,9 +61,9 @@ export function renderComment(el: HTMLElement, comment: string) {
 		const bullet = BULLET.exec(line);
 		const numbered = NUMBERED.exec(line);
 		if (bullet || numbered) {
-			const type = bullet ? "ul" : "ol";
+			const type: "ul" | "ol" = bullet ? "ul" : "ol";
 			if (!list || listType !== type) {
-				list = el.createEl(type as "ul" | "ol");
+				list = el.createEl(type);
 				listType = type;
 				if (numbered && numbered[1] !== "1") list.setAttr("start", numbered[1]);
 			}
@@ -94,8 +94,8 @@ export interface CommentInputOptions {
 export function enhanceCommentInput(input: HTMLTextAreaElement, opts: CommentInputOptions): () => void {
 	const autosize = () => {
 		const before = input.offsetHeight;
-		input.style.height = "auto";
-		input.style.height = `${input.scrollHeight + 2}px`;
+		input.setCssStyles({ height: "auto" });
+		input.setCssStyles({ height: `${input.scrollHeight + 2}px` });
 		if (input.offsetHeight !== before) opts.onResize();
 	};
 

@@ -22,7 +22,7 @@ export function activeAnnotation(state: EditorState, list: Annotation[]): Annota
 	if (editing !== null) return list.find((a) => a.from === editing) ?? null;
 	// 用含标记的整个范围判断：标记被隐藏后，光标常会落在开头标记之前或结尾标记之后
 	const head = state.selection.main.head;
-	return list.find((a) => !a.global && head >= a.from && head <= a.to) ?? null;
+	return list.find((a) => !a.isGlobal && head >= a.from && head <= a.to) ?? null;
 }
 
 /** 插入一条意见为空的批注，并直接打开它的编辑卡片 */
@@ -53,8 +53,7 @@ class GlobalChip extends WidgetType {
 	}
 
 	toDOM() {
-		const el = document.createElement("span");
-		el.className = "md-annot-global";
+		const el = createSpan({ cls: "md-annot-global" });
 		setIcon(el.createSpan({ cls: "md-annot-icon" }), "message-square");
 		el.createSpan({ cls: "md-annot-global-label", text: "全文批注" });
 		return el;
@@ -95,7 +94,7 @@ export const annotationDecorations = ViewPlugin.fromClass(
 			const active = activeAnnotation(view.state, list);
 			const decos: Range<Decoration>[] = [];
 			for (const a of list) {
-				if (a.global) {
+				if (a.isGlobal) {
 					decos.push(chip.range(a.from, a.to));
 					continue;
 				}

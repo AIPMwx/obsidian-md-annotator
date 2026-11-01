@@ -88,8 +88,7 @@ export const blockButton = ViewPlugin.fromClass(
 			const coords = view.coordsAtPos(line.from, 1) ?? view.coordsAtPos(from, 1);
 			if (!coords) return this.hide();
 			this.target = { from, to };
-			this.button.style.top = `${coords.top - sr.top + view.scrollDOM.scrollTop - 2}px`;
-			this.button.style.left = `${right - sr.left + view.scrollDOM.scrollLeft + 6}px`;
+			this.button.setCssStyles({ top: `${coords.top - sr.top + view.scrollDOM.scrollTop - 2}px`, left: `${right - sr.left + view.scrollDOM.scrollLeft + 6}px` });
 			this.button.addClass("is-visible");
 		};
 	},

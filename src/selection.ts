@@ -119,10 +119,9 @@ export const selectionButton = ViewPlugin.fromClass(
 				return;
 			}
 			this.error = p.error;
-			this.button.style.top = `${p.top}px`;
-			this.button.style.left = `${p.left}px`;
+			this.button.setCssStyles({ top: `${p.top}px`, left: `${p.left}px` });
 			this.button.toggleClass("is-disabled", p.error !== null);
-			setTooltip(this.button, p.error ?? "为选中的文字添加批注（Cmd/Ctrl+Shift+M）", { placement: "top" });
+			setTooltip(this.button, p.error ?? "为选中的文字添加批注", { placement: "top" });
 			this.button.addClass("is-visible");
 		}
 	},
