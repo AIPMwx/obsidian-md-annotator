@@ -418,3 +418,22 @@ mark.md-annot-hl.is-hover {
 	max-height: 50vh;
 	line-height: 1.6;
 }
+
+/* ---------- 批注原文样式（设置项，类名加在 body 上） ---------- */
+
+/* 不要底色：悬停、当前批注时仍然加深，方便对应卡片 */
+.md-annot-no-bg .md-annot-hl:not(.is-active):not(.is-hover),
+.md-annot-no-bg .md-annot-block-hl:not(.is-active):not(.is-hover) {
+	background-color: transparent;
+}
+
+/* 不要下划线 */
+.md-annot-no-underline .md-annot-hl {
+	border-bottom: none;
+}
+
+/* 都不要：跨段批注左侧的竖线也只在悬停、当前批注时显示 */
+.md-annot-no-bg.md-annot-no-underline .md-annot-block-line:not(.is-active)::before,
+.md-annot-no-bg.md-annot-no-underline .md-annot-block-hl:not(.is-active):not(.is-hover)::before {
+	display: none;
+}

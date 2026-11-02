@@ -18,7 +18,7 @@ import {
 	sanitizeComment,
 } from "./critic";
 import { blockButton } from "./block";
-import { display, READING_STYLES, ReadingStyle, refreshMargin } from "./display";
+import { display, MARK_STYLES, MarkStyle, READING_STYLES, ReadingStyle, refreshMargin } from "./display";
 import { annotateRange, annotationDecorations, editingField, setEditing } from "./editor";
 import { marginCards } from "./margin";
 import { selectionButton } from "./selection";
@@ -41,7 +41,12 @@ interface Settings {
 	collapsed: boolean;
 	prefix: string;
 	readingStyle: ReadingStyle;
+	markStyle: MarkStyle;
 }
+
+/** 标记样式通过 body 上的类名生效，不需要重新渲染正文 */
+const NO_BG = "md-annot-no-bg";
+const NO_UNDERLINE = "md-annot-no-underline";
 
 export default class AnnotatorPlugin extends Plugin {
 	/** 每个 Markdown 视图标题栏上的“收起/展开批注”按钮 */
@@ -54,7 +59,11 @@ export default class AnnotatorPlugin extends Plugin {
 		display.collapsed = saved?.collapsed ?? false;
 		display.prefix = saved?.prefix ?? "";
 		display.readingStyle = saved?.readingStyle && saved.readingStyle in READING_STYLES ? saved.readingStyle : "margin";
+		display.markStyle = saved?.markStyle && saved.markStyle in MARK_STYLES ? saved.markStyle : "both";
 		display.setCollapsed = (collapsed) => void this.setCollapsed(collapsed);
+		this.applyMarkStyle();
+		// 新开的独立窗口也要带上标记样式
+		this.registerEvent(this.app.workspace.on("window-open", (win) => this.applyMarkStyle(win.doc)));
 
 		this.addSettingTab(new AnnotatorSettingTab(this.app, this));
 		this.registerEditorExtension([editingField, annotationDecorations, marginCards, blockButton, selectionButton]);
@@ -106,6 +115,22 @@ export default class AnnotatorPlugin extends Plugin {
 	onunload() {
 		for (const btn of this.toggleButtons.values()) btn.remove();
 		for (const margin of this.readingMargins.values()) margin.destroy();
+		for (const doc of this.documents()) doc.body.removeClasses([NO_BG, NO_UNDERLINE]);
+	}
+
+	/** 主窗口和所有独立窗口的 document */
+	private documents(): Set<Document> {
+		const docs = new Set<Document>([document]);
+		this.app.workspace.iterateAllLeaves((leaf) => docs.add(leaf.view.containerEl.doc));
+		return docs;
+	}
+
+	applyMarkStyle(doc?: Document) {
+		const style = display.markStyle;
+		for (const d of doc ? [doc] : this.documents()) {
+			d.body.toggleClass(NO_BG, style === "underline" || style === "none");
+			d.body.toggleClass(NO_UNDERLINE, style === "background" || style === "none");
+		}
 	}
 
 	async setCollapsed(collapsed: boolean) {
@@ -120,6 +145,7 @@ export default class AnnotatorPlugin extends Plugin {
 			collapsed: display.collapsed,
 			prefix: display.prefix,
 			readingStyle: display.readingStyle,
+			markStyle: display.markStyle,
 		} satisfies Settings);
 	}
 
@@ -244,6 +270,22 @@ class AnnotatorSettingTab extends PluginSettingTab {
 						text.setPlaceholder("例如：AI 请修改：");
 						text.setValue(display.prefix in PREFIX_PRESETS ? "" : display.prefix);
 						text.onChange((value) => void this.setPrefix(value));
+					});
+				},
+			},
+			{
+				name: "批注原文样式",
+				desc: "被批注的原文怎么标出来，编辑和阅读模式都生效。无论选哪种，悬停或选中某条批注时，对应的原文都会加深显示。",
+				aliases: ["高亮", "下划线", "底色", "highlight", "underline"],
+				render: (setting) => {
+					setting.addDropdown((dd) => {
+						for (const [value, label] of Object.entries(MARK_STYLES)) dd.addOption(value, label);
+						dd.setValue(display.markStyle);
+						dd.onChange((value) => {
+							display.markStyle = value as MarkStyle;
+							void this.plugin.saveSettings();
+							this.plugin.applyMarkStyle();
+						});
 					});
 				},
 			},

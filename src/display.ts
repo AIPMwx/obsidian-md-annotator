@@ -11,9 +11,20 @@ export const READING_STYLES: Record<ReadingStyle, string> = {
 	hidden: "隐藏批注，只看正文",
 };
 
+export type MarkStyle = "both" | "background" | "underline" | "none";
+
+export const MARK_STYLES: Record<MarkStyle, string> = {
+	both: "底色 + 下划线",
+	background: "只有底色",
+	underline: "只有下划线",
+	none: "不标记",
+};
+
 export const display = {
 	/** 阅读模式下批注的显示样式 */
 	readingStyle: "margin" as ReadingStyle,
+	/** 被批注原文的标记样式，编辑和阅读模式共用 */
+	markStyle: "both" as MarkStyle,
 	collapsed: false,
 	/** 写入文件时加在意见前的前缀，空字符串表示不加 */
 	prefix: "",

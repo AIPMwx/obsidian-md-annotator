@@ -76,6 +76,7 @@ AI 生成初稿  →  你在 Obsidian 里通读、批注  →  AI 按批注修�
 ### 设置
 
 - **意见前缀**：可以选择在写入文件时，给每条意见加上「批注：」「修改意见：」或自定义的前缀，帮助 AI 更明确地识别批注。界面上不显示这个前缀。
+- **批注原文样式**：被批注的原文用什么方式标出来，可选「底色 + 下划线」「只有底色」「只有下划线」「不标记」。不管选哪种，悬停或选中某条批注时，对应原文都会加深显示。
 - **阅读模式样式**：选择阅读模式下批注的显示方式。
 
 ## 批注在文件里的样子
@@ -139,6 +140,7 @@ MD Annotator lets you select text in a Markdown note and attach a comment. Comme
 - One-click annotation of a paragraph on hover, or of any selection (including multiple paragraphs), plus whole-document comments. No default hotkey is set; you can assign one in Settings → Hotkeys.
 - A Google-Docs-style comment margin: cards aligned with the text, compact two-line previews, the active card expands and aligns with its passage, and highlights and cards highlight each other on hover.
 - A collapsible margin with count badges for small screens, and four display styles for Reading view.
+- Choose how annotated text is marked: background + underline, background only, underline only, or no marking.
 - Lightweight Markdown in comments (bold, italic, code, lists), an auto-growing input box, and keyboard shortcuts.
 - An optional comment prefix (e.g. `Note:`) to make annotations even more explicit for AI.
 - Annotations are plain text inside your notes and work with any AI tool: Claude Code, Cursor, or pasting into a chat.
