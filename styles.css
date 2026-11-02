@@ -11,11 +11,10 @@
 	background-color: rgba(255, 166, 0, 0.42);
 }
 
-/* Obsidian 会把 {==原文==} 里的 ==原文== 也渲染成高亮（可能包在批注里面，也可能包在外面），这里统一成批注样式。
+/* Obsidian 会把 {==原文==} 里的 ==原文== 也渲染成高亮，并包在批注高亮的外层。
+   有批注的行带 md-annot-line 类（editor.ts 里加的行装饰），这里去掉那层高亮，统一成批注样式。
    选择器要比 Obsidian 自带的 .cm-s-obsidian span.cm-highlight 更具体 */
-.cm-s-obsidian .md-annot-hl span.cm-highlight,
-.cm-s-obsidian span.md-annot-hl.cm-highlight,
-.cm-s-obsidian span.cm-highlight:has(> .md-annot-hl) {
+.cm-s-obsidian .md-annot-line span.cm-highlight {
 	background-color: transparent;
 	color: inherit;
 }

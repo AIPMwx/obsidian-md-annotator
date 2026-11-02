@@ -1,7 +1,7 @@
 {
   "id": "md-annotator",
   "name": "MD Annotator",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "minAppVersion": "1.13.0",
   "description": "Annotate Markdown drafts with inline CriticMarkup comments, then let AI revise the draft according to your notes.",
   "author": "PM九筒",

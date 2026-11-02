@@ -71,6 +71,8 @@ const markFor = (a: Annotation, active: boolean) =>
 /** 跨段批注：每一行左侧再加一条竖线，标出批注范围 */
 const blockLine = Decoration.line({ class: "md-annot-block-line" });
 const activeBlockLine = Decoration.line({ class: "md-annot-block-line is-active" });
+/** 有批注的行。Obsidian 会把 {==原文==} 里的 ==原文== 渲染成高亮并包在批注外层，样式里靠这个类去掉它 */
+const annotLine = Decoration.line({ class: "md-annot-line" });
 
 export const annotationDecorations = ViewPlugin.fromClass(
 	class {
@@ -101,13 +103,14 @@ export const annotationDecorations = ViewPlugin.fromClass(
 				decos.push(hidden.range(a.from, a.textFrom));
 				if (a.textTo > a.textFrom) decos.push(markFor(a, a === active).range(a.textFrom, a.textTo));
 				decos.push(hidden.range(a.textTo, a.to));
-				if (a.text.includes("\n")) {
-					const doc = view.state.doc;
-					const last = doc.lineAt(a.textTo).number;
-					for (let n = doc.lineAt(a.textFrom).number; n <= last; n++) {
-						const line = doc.line(n);
-						if (line.length) decos.push((a === active ? activeBlockLine : blockLine).range(line.from));
-					}
+				const doc = view.state.doc;
+				const multiline = a.text.includes("\n");
+				const last = doc.lineAt(a.textTo).number;
+				for (let n = doc.lineAt(a.textFrom).number; n <= last; n++) {
+					const line = doc.line(n);
+					if (!line.length) continue;
+					decos.push(annotLine.range(line.from));
+					if (multiline) decos.push((a === active ? activeBlockLine : blockLine).range(line.from));
 				}
 			}
 			return Decoration.set(decos, true);

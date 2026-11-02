@@ -101,7 +101,7 @@ AI 生成初稿  →  你在 Obsidian 里通读、批注  →  AI 按批注修�
 
 **从插件市场安装**：设置 → 第三方插件 → 浏览，搜索 “MD Annotator”。
 
-**手动安装**：从 [Releases](https://github.com/wangxingai/obsidian-md-annotator/releases) 下载 `main.js`、`manifest.json`、`styles.css`，放到 `<你的 vault>/.obsidian/plugins/md-annotator/`，然后在设置 → 第三方插件里启用。
+**手动安装**：从 [Releases](https://github.com/AIPMwx/obsidian-md-annotator/releases) 下载 `main.js`、`manifest.json`、`styles.css`，放到 `<你的 vault>/.obsidian/plugins/md-annotator/`，然后在设置 → 第三方插件里启用。
 
 ## 说明与限制
 
